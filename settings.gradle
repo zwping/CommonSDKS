@@ -2,3 +2,4 @@ rootProject.name = "CommonSDKS"
 include ':app'
 include ':wx'
 include ':qq'
+include ':all'
