@@ -183,5 +183,9 @@ try:
     _log(os.popen('git add .'))
     time.sleep(0.5)
     _log(os.popen("git commit -m '%s'" % '一键更新Jitpack'))
+    time.sleep(0.5)
+    _log(os.popen("git tag '%s'" % tag))
+    time.sleep(0.5)
+    _log(os.popen("git push"))
 except Exception as e:
     _log('main() %s' % e, 'err')
