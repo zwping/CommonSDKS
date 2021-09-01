@@ -179,8 +179,9 @@ try:
     tag = git_next_tag()
     _log('新Tag: %s' % tag)
     _log(os.popen('cd %s' % cfg['loc_dir']))
+    time.sleep(1)
     _log(os.popen('git add .'))
-    _log("git commit -m '%s'" % '一键更新Jitpack')
-    # _log(os.popen())
+    time.sleep(1)
+    _log(os.popen("git commit -m '%s'" % '一键更新Jitpack'))
 except Exception as e:
     _log('main() %s' % e, 'err')
