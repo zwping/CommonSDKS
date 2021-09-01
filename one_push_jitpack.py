@@ -22,7 +22,8 @@ import time
 """
 
 cfg = {
-    'git_dir': '/Users/feiyan/zwping/commonsdks',
+    'loc_dir': '/Users/feiyan/zwping/commonsdks',
+    'gth_dir': 'https://github.com/zwping/CommonSDKS'
 }
 
 def _log(msg, *args):
@@ -143,14 +144,43 @@ def main():
 
     _log('-- Fir更新完成 --', 'suc')
 
-def git_tag():
-    os.popen('cd %s' % cfg['git_dir'])
-    r = os.popen('git tag')
-    _log(r.read())
+def git_next_tag() -> str:
+    from urllib.parse import urlparse
+    url = urlparse(cfg['gth_dir'])
+    path = url.path.split('/')
+    _log('获取tags limit 5')
+    url = 'https://jitpack.io/api/refs/com.github.%s/%s' % (path[1], path[2])
+    r = requests.get(url)
+    tags = r.json()['tags']
+    # 只支持x.y.z格式的tag
+    maxTag = list(filter(lambda x: len(x)==5 ,list(d['tag_name'] for d in tags)))[0]
+    _log('最新Tag: %s' % maxTag)
+    # 001*10
+    maxTag = int(maxTag.replace('.', '')) * 10
+    # 10+10/10 = 2
+    nextTag = int((maxTag + 10) / 10)
+    # 0.0.2
+    nextTag = '.'.join(list(d for d in str(nextTag).zfill(3)))
+    return nextTag
+
+def git_add_all():
+    _log(os.popen('git add .'))
+    _log(os.popen('git commit -m %s' % '一键更新Jitpack'))
+    pass
+
+"""
+https://github.com/jitpack/jitpack.io/blob/master/ANDROID.md
+"""
+def jitpack_get():
     pass
 
 
 try:
-    git_tag()
+    tag = git_next_tag()
+    _log('新Tag: %s' % tag)
+    _log(os.popen('cd %s' % cfg['loc_dir']))
+    _log(os.popen('git add .'))
+    _log("git commit -m '%s'" % '一键更新Jitpack')
+    # _log(os.popen())
 except Exception as e:
     _log('main() %s' % e, 'err')
