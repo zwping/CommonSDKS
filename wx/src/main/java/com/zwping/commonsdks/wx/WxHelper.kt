@@ -85,9 +85,13 @@ object WxHelper: IWxHelper {
             lis.callback(false, -100, ConstCodeExtra1); return
         }
         val entity = WxMsgEntity()
-        val data = compressBmp2ByteArray(bmp, isTransparentImg(realPath), 26214400, false)
+        // val data = compressBmp2ByteArray(bmp, isTransparentImg(realPath), 26214400, false)
+        // 根据https://developers.weixin.qq.com/community/minihome/doc/0006225b1749c81b25bac22e15f400
+        // 提示，imageData 限制500kb合适, 如果传更高清图, 需使用imagePath (imagePath对于双开微信不支持, 且微信官方不回复相关问题解决方案)
+        // Binder传输机制限制了imageData Byte[] 大小
+        val data = compressBmp2ByteArray(bmp, isTransparentImg(realPath), 500*1024L, false)
         entity.imgObj = WXImageObject(data)
-        entity.thumbData = bmp2ByteArray(Bitmap.createScaledBitmap(bmp, 150, 150, true), true)
+        entity.thumbData = bmp2ByteArray(Bitmap.createScaledBitmap(bmp, 150, 150, true), 32*1024L, true)
         bmp.recycle()
         sendReq(scene, entity, lis, ctx, appId)
     }
@@ -144,12 +148,18 @@ object WxHelper: IWxHelper {
     }
     override fun sendReq(scene: WxScene, entity: WxMsgEntity, lis: OnShareListener) = sendReq(scene, entity, lis, null, null)
 
-    override fun safeSts(str: String, maxByte: Long): String = str.safeStr(maxByte)
-    override fun getImg(realPath: String?): Bitmap? = Util.getImg(realPath)
-    override fun compressBmp2ByteArray(bmp: Bitmap?, isTransparentImg: Boolean, limitByte: Long, needRecycle: Boolean): ByteArray? = Util.compressBmp2ByteArray(bmp, isTransparentImg, limitByte, needRecycle)
-    override fun isTransparentImg(realPath: String?): Boolean = Util.isTransparentImg(realPath)
-    override fun byteArray2Bmp(byteArray: ByteArray?): Bitmap? = Util.byteArray2Bmp(byteArray)
-    override fun bmp2ByteArray(bmp: Bitmap?, needRecycle: Boolean): ByteArray? = Util.bmp2ByteArray(bmp, needRecycle)
+    override fun safeSts(str: String, maxByte: Long): String =
+        str.safeStr(maxByte)
+    override fun getImg(realPath: String?): Bitmap? =
+        Util.getImg(realPath)
+    override fun compressBmp2ByteArray(bmp: Bitmap?, isTransparentImg: Boolean, limitByte: Long, needRecycle: Boolean): ByteArray? =
+        Util.compressBmp2ByteArray(bmp, isTransparentImg, limitByte, needRecycle)
+    override fun isTransparentImg(realPath: String?): Boolean =
+        Util.isTransparentImg(realPath)
+    override fun byteArray2Bmp(byteArray: ByteArray?): Bitmap? =
+        Util.byteArray2Bmp(byteArray)
+    override fun bmp2ByteArray(bmp: Bitmap?, limitByte: Long, needRecycle: Boolean): ByteArray? =
+        Util.compressBmp2ByteArray(bmp, false, limitByte, needRecycle)
 
     // ============== 一些常量值 =================
     /**
@@ -176,7 +186,18 @@ object WxHelper: IWxHelper {
         var miniObj: WXMiniProgramObject? = null
 
         override fun toString(): String {
-            return "WxMsgEntity(title=$title, description=$description, thumbData=${thumbData?.contentToString()}, mediaMsg=$mediaMsg, textObj=$textObj, imgObj=$imgObj, musicObj=$musicObj, videoObj=$videoObj, webObj=$webObj, fileObj=$fileObj, extendObj=$extendObj, miniObj=$miniObj)"
+            return "WxMsgEntity(title=$title, " +
+                    "description=$description, " +
+                    "thumbData=${thumbData?.size}, " +
+                    "mediaMsg=$mediaMsg, " +
+                    "textObj=$textObj, " +
+                    "imgObj=${imgObj?.imageData?.size ?: imgObj?.imagePath}, " +
+                    "musicObj=$musicObj, " +
+                    "videoObj=$videoObj, " +
+                    "webObj=$webObj, " +
+                    "fileObj=$fileObj, " +
+                    "extendObj=$extendObj, " +
+                    "miniObj=$miniObj)"
         }
 
     }
@@ -187,6 +208,7 @@ object WxHelper: IWxHelper {
         Favorite(WXSceneFavorite),  // 收藏
     }
 
+    // 公开常量, 可随意替换
     const val ConstRegisterFail = "应用AppId注册到微信失败"
     const val ConstWxUnInstall = "未安装微信"
     const val ConstArgsErr = "args error"

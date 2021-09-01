@@ -67,7 +67,7 @@ interface IWxHelper {
     /**
      * Bitmap压缩 - 缩放 质量
      * @param bmp
-     * @param isTransparentImg 是否为透明图层 Type.JPEG有压缩兼容性更好，但透明图层会产生黑底
+     * @param isTransparentImg 是否为透明图层 Type.JPEG有损压缩兼容性更好，但透明图层会产生黑底
      * @param limitByte 压缩阀值 Byte
      * @param needRecycle
      */
@@ -80,7 +80,7 @@ interface IWxHelper {
     fun isTransparentImg(realPath: String?): Boolean
 
     fun byteArray2Bmp(byteArray: ByteArray?): Bitmap?
-    fun bmp2ByteArray(bmp: Bitmap?, needRecycle: Boolean): ByteArray?
+    fun bmp2ByteArray(bmp: Bitmap?, limitByte: Long, needRecycle: Boolean): ByteArray?
 
     fun interface OnShareListener{ fun callback(state: Boolean, errCode: Int, msg: String) }
     fun interface OnLoginListener{ fun callback(state: Boolean, code: String?, errCode: Int, msg: String) }
