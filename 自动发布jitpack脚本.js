@@ -4,7 +4,7 @@
  基于nodejs自动发布jitpack
 
  使用
-    复制当前js脚本至项目根目录
+    复制当前js脚本至项目根目录 [如果配置自定义域名, 需要手动添加]
     [export NODE_PATH=$(npm root -g)]
     npm install -g shelljs axios
     node 自动发布jitpack脚本.js
@@ -20,6 +20,7 @@
     同步代码至jitpack
     触发jitpack build
     轮询查看build结果
+    [自定义域名同步 编译]
 */
 'use strict'
 
@@ -31,6 +32,8 @@ var cfg = {
     vcode: '',
     newVName: '', // 值等于tag值
     newVCode: '',
+
+    cusGroupId: 'com.zwping', // 自定义域名, 需要单独配置
 }
 
 if (!cfg.root) cfg.root = __dirname
@@ -61,6 +64,9 @@ if (remotev.startsWith('git@')) {
     cfg.groupId = remotev.split(':')[1].split('/')[0]
     cfg.artifactId = remotev.split('/')[1].replace('.git', '')
 }
+
+// echo(getDomainName())
+// return
 
 var status = shell.exec('git status')
 // echo(status)
@@ -130,52 +136,55 @@ echo(`cfg对象 ${JSON.stringify(cfg)}`)
 
 var errNum = 0
 function get_builds() {
-    var url = `https://jitpack.io/api/builds/com.github.${cfg.groupId}/${cfg.artifactId}/${cfg.newVName}`
-    echo(`正在查询jitpack build结果`)
+    var url = `https://jitpack.io/api/builds/${getDomainName()}/${cfg.artifactId}/${cfg.newVName}`
+    echo(`${getCusBuildTag()}正在查询jitpack build结果`)
     axios.get(url)
         .then(r => {
             echo(JSON.stringify(r.data))
-            if (!r.data.status) {
-                echo(`查询异常 ${url} ${JSON.stringify(r.data)}`); return
+            if (!r.data.status ) {
+                echo(`${getCusBuildTag()}查询异常 ${url} ${JSON.stringify(r.data)}`); return
             }
             if (r.data.status === 'ok') {
-                echo('恭喜您, 自动发布jitpack成功 /撒花')
-                echo("maven { url 'https://jitpack.io' }")
+                echo(`${getCusBuildTag()}恭喜您, 自动发布jitpack成功 /撒花`)
+                echo(`${getCusBuildTag()}maven { url 'https://jitpack.io' }`)
                 var multi = r.data.modules.length>0 ? `:[${r.data.modules}]` : '' // 多lib
-                echo(`implementation 'com.github.${cfg.groupId}.${cfg.artifactId}${multi}:${cfg.newVName}'`)
+                echo(`${getCusBuildTag()}implementation 'com.github.${cfg.groupId}.${cfg.artifactId}${multi}:${cfg.newVName}'`)
                 get_downs()
+                if (!cusGroupIdBuilding && cfg.cusGroupId) {
+                    errNum=0; cusGroupIdBuilding = true; get_refs(); // 第二轮自定义域名编译
+                }
                 return
             }
             get_builds()
         })
         .catch(err => {
             if (++errNum > 60*3) {
-                echo(`jitpack 编译失败 ${err}`)
+                echo(`${getCusBuildTag()}jitpack 编译失败 ${err}`)
                 echo(url)
                 return
             }
-            if (errNum%10 === 0) echo(`正在重查(${errNum})jitpack build`)
+            if (errNum%10 === 0) echo(`${getCusBuildTag()}正在重查(${errNum})jitpack build`)
             setTimeout(() => get_builds(), 1000)
         })
 }
 
 function get_downs() {
-    var url = `https://jitpack.io/api/downloads/com.github.${cfg.groupId}/${cfg.artifactId}`
-    echo('正在查询用户使用情况')
+    var url = `https://jitpack.io/api/downloads/${getDomainName()}/${cfg.artifactId}`
+    echo(`${getCusBuildTag()}正在查询用户使用情况`)
     axios.get(url)
     .then(r => {
-        echo(JSON.stringify(r.data))
+        echo(`${getCusBuildTag()}${JSON.stringify(r.data)}`)
     })
     .catch(err => {
-        echo(`${err} ${url}`)
+        echo(`${getCusBuildTag()}${err} ${url}`)
     })
 }
 
 
 var refsNum = 0
 function get_refs() {
-    echo('正在同步 jitpack from github')
-    var url = `https://jitpack.io/api/refs/com.github.${cfg.groupId}/${cfg.artifactId}`
+    echo(`${getCusBuildTag()}正在同步 jitpack from github`)
+    var url = `https://jitpack.io/api/refs/${getDomainName()}/${cfg.artifactId}`
     axios.get(url)
         .then(r => {
             // echo(JSON.stringify(r.data))
@@ -185,14 +194,21 @@ function get_refs() {
                 setTimeout(() => get_refs(), 1000); return
             }
             if (refsNum > 30) {
-                echo(`同步失败 ${url}`); return
+                echo(`${getCusBuildTag()}同步失败 ${url}`); return
             }
             get_builds()
         })
         .catch(err => {
-            echo(`get_refs ${err} ${url}`)
+            echo(`${getCusBuildTag()}get_refs ${err} ${url}`)
         })
 }
 
 get_refs()
 
+var cusGroupIdBuilding = false
+function getDomainName() {
+    return cusGroupIdBuilding && cfg.cusGroupId ? `${cfg.cusGroupId}` : `com.github.${cfg.groupId}`
+}
+function getCusBuildTag() {
+    return cusGroupIdBuilding ? '[自定义域名] ' : ''
+}
