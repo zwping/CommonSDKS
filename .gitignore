@@ -85,3 +85,7 @@ lint/tmp/
 # lint/reports/
 
 /*.idea
+
+node_modules
+package-lock.json
+package.json
