@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "axios": "^0.22.0",
-    "shelljs": "^0.8.4"
-  }
-}
