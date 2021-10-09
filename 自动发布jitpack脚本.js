@@ -7,10 +7,6 @@
     复制当前js脚本至项目根目录
     npm install -g shelljs axios
     node 自动发布jitpack脚本.js
-        [运行js报错, npm init创建私有域更好运行, 注意.gitignore]
-            node_modules
-            package-lock.json
-            package.json
 
  脚本执行过程
     进入仓库工程目录
@@ -137,7 +133,7 @@ function get_builds() {
     echo(`正在查询jitpack build结果`)
     axios.get(url)
         .then(r => {
-            // echo(JSON.stringify(r.data))
+            echo(JSON.stringify(r.data))
             if (!r.data.status) {
                 echo(`查询异常 ${url} ${JSON.stringify(r.data)}`); return
             }
