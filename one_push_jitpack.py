@@ -144,7 +144,7 @@ def main():
 
     _log('-- Fir更新完成 --', 'suc')
 
-def git_next_tag() -> str:
+def get_cur_tag():
     from urllib.parse import urlparse
     url = urlparse(cfg['gth_dir'])
     path = url.path.split('/')
@@ -153,15 +153,19 @@ def git_next_tag() -> str:
     r = requests.get(url)
     tags = r.json()['tags']
     # 只支持x.y.z格式的tag
-    maxTag = list(filter(lambda x: len(x)==5 ,list(d['tag_name'] for d in tags)))[0]
-    _log('最新Tag: %s' % maxTag)
+    curTag = list(filter(lambda x: len(x)==5 ,list(d['tag_name'] for d in tags)))[0]
+    return curTag
+
+
+def git_next_tag():
+    curTag = get_cur_tag()
     # 001*10
-    maxTag = int(maxTag.replace('.', '')) * 10
+    maxTag = int(curTag.replace('.', '')) * 10
     # 10+10/10 = 2
     nextTag = int((maxTag + 10) / 10)
     # 0.0.2
     nextTag = '.'.join(list(d for d in str(nextTag).zfill(3)))
-    return nextTag
+    return curTag, nextTag
 
 def git_add_all():
     _log(os.popen('git add .'))
@@ -176,16 +180,20 @@ def jitpack_get():
 
 
 try:
-    tag = git_next_tag()
-    _log('新Tag: %s' % tag)
-    _log(os.popen('cd %s' % cfg['loc_dir']))
-    time.sleep(0.5)
-    _log(os.popen('git add .'))
-    time.sleep(0.5)
-    _log(os.popen("git commit -m '%s'" % '一键更新Jitpack'))
-    time.sleep(0.5)
-    _log(os.popen("git tag '%s'" % tag))
-    time.sleep(0.5)
-    _log(os.popen("git push"))
+    curTag, nextTag = git_next_tag()
+    _log('当前Tag: %s' % curTag)
+    _log('新Tag: %s' % nextTag)
+    # _log(os.popen('cd %s' % cfg['loc_dir']))
+    # time.sleep(0.5)
+    # _log(os.popen('git add .'))
+    # time.sleep(0.5)
+    # _log(os.popen("git commit -m '%s'" % '一键更新Jitpack'))
+    # time.sleep(0.5)
+    # _log(os.popen("git push"))
+    # time.sleep(0.5)
+    # _log(os.popen("git tag '%s'" % tag))
+    # time.sleep(0.5)
+    # _log(os.popen("git push origin '%s'" % tag))
+    
 except Exception as e:
     _log('main() %s' % e, 'err')
