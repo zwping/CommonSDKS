@@ -5,6 +5,7 @@
 
  使用
     复制当前js脚本至项目根目录
+    [export NODE_PATH=$(npm root -g)]
     npm install -g shelljs axios
     node 自动发布jitpack脚本.js
 
@@ -140,8 +141,8 @@ function get_builds() {
             if (r.data.status === 'ok') {
                 echo('恭喜您, 自动发布jitpack成功 /撒花')
                 echo("maven { url 'https://jitpack.io' }")
-                var multi = r.data.modules.length>0 ? `:[${multi}]` : ''
-                echo(`implementation 'com.github.${cfg.groupId}.${cfg.artifactId}:${cfg.newVName}'`)
+                var multi = r.data.modules.length>0 ? `:[${r.data.modules}]` : '' // 多lib
+                echo(`implementation 'com.github.${cfg.groupId}.${cfg.artifactId}${multi}:${cfg.newVName}'`)
                 get_downs()
                 return
             }
