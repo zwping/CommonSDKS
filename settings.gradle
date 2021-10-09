@@ -1,4 +1,4 @@
-rootProject.name = "CommonSDKS"
+rootProject.name = "commonsdks"
 include ':app'
 include ':wx'
 include ':qq'
