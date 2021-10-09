@@ -4,7 +4,7 @@
  基于nodejs自动发布jitpack
 
  使用
-    复制当前js脚本至项目根目录 [如果配置自定义域名, 需要手动添加]
+    复制当前js脚本至项目根目录 [自定义域名需要手动添加]
     [export NODE_PATH=$(npm root -g)]
     npm install -g shelljs axios
     node 自动发布jitpack脚本.js
