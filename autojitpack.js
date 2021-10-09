@@ -7,7 +7,7 @@
     复制当前js脚本至项目根目录 [自定义域名需要手动添加]
     [export NODE_PATH=$(npm root -g)]
     npm install -g shelljs axios
-    node 自动发布jitpack脚本.js
+    node autojitpack.js
 
  脚本执行过程
     进入仓库工程目录
