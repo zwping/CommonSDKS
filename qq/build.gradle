@@ -11,16 +11,16 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 18
-        versionName "0.1.08"
+        versionCode 19
+        versionName "0.1.09"
 
         consumerProguardFiles "consumer-rules.pro"
     }
-//    android.libraryVariants.all { variant ->
-//        variant.outputs.all { output ->
-//            outputFileName = "${parent.name}-${android.defaultConfig.versionName}.aar"
-//        }
-//    }
+    android.libraryVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "${parent.name}-${android.defaultConfig.versionName}.aar"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
