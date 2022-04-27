@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 21
-        versionName "0.1.11"
+        versionCode 22
+        versionName "0.1.12"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -35,7 +35,6 @@ android {
         jvmTarget = '1.8'
     }
 }
-group = 'com.zwping'
 
 dependencies {
 
