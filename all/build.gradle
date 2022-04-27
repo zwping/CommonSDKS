@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'com.github.dcendents.android-maven'
 }
+group = 'com.zwping'
 
 android {
     compileSdkVersion 30
@@ -10,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 13
-        versionName "0.1.03"
+        versionCode 14
+        versionName "0.1.04"
         consumerProguardFiles "consumer-rules.pro"
     }
     android.libraryVariants.all { variant ->
@@ -38,5 +39,6 @@ dependencies {
 
     api project(':wx')
     api project(':qq')
+    api project(':channel_push')
 
 }
