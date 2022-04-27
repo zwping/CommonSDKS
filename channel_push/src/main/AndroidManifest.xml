@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zwping.channel_push">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <queries>
+        <intent> <action android:name="com.huawei.hms.core.aidlservice" /> </intent>
+    </queries>
+    <queries>
+        <intent> <action android:name="com.huawei.hms.core.aidlservice" /> </intent>
+    </queries>
+
+    <application>
+        <receiver
+            android:exported="true"
+            android:name=".receiver.MIReceiver">
+            <intent-filter> <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE" /> </intent-filter>
+            <intent-filter> <action android:name="com.xiaomi.mipush.MESSAGE_ARRIVED" /> </intent-filter>
+            <intent-filter> <action android:name="com.xiaomi.mipush.ERROR" /> </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.heytap.msp.push.service.DataMessageCallbackService"
+            android:permission="com.heytap.mcs.permission.SEND_PUSH_MESSAGE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.heytap.mcs.action.RECEIVE_MCS_MESSAGE"/>
+                <action android:name="com.heytap.msp.push.RECEIVE_MCS_MESSAGE"/>
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.heytap.msp.push.service.CompatibleDataMessageCallbackService"
+            android:permission="com.coloros.mcs.permission.SEND_MCS_MESSAGE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.coloros.mcs.action.RECEIVE_MCS_MESSAGE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".receiver.HmsMessageService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.huawei.push.action.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <!--vivo push应用定义消息receiver声明-->
+        <receiver android:name=".receiver.VivoReceiver" android:exported="false">
+            <intent-filter> <action android:name="com.vivo.pushclient.action.RECEIVE"/> </intent-filter>
+        </receiver>
+        <!--Vivo Push需要配置的service、activity-->
+        <service
+            android:name="com.vivo.push.sdk.service.CommandClientService"
+            android:permission="com.push.permission.UPSTAGESERVICE"
+            android:exported="true"/>
+
+
+    </application>
+
+</manifest>

@@ -13,10 +13,13 @@ android {
         versionCode 11
         versionName "0.1.1"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
-
+    android.libraryVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "${rootProject.name}-${android.defaultConfig.versionName}.aar"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

@@ -1,26 +1,50 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.huawei.agconnect'
+}
+
+ext {
+    appid = 'xxx'
 }
 
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
+    appid
+
+    signingConfigs {
+        release {
+            storeFile
+            storePassword
+            keyAlias
+            keyPassword
+        }
+    }
+    getSigningProperties()
+    println '包名: ' + appid
+
     defaultConfig {
-        applicationId "com.zwping.commonsdks"
+        applicationId appid!='xxx' ? appid : "com.zwping.commonsdks"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // buildConfigField "String", "WX_ID", '"xxx"'
     }
 
     buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'consumer-rules.pro'
         }
     }
     compileOptions {
@@ -29,6 +53,29 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+}
+// 读取签名配置
+def getSigningProperties() {
+    def propFile = file('../secure.properties')
+    if (propFile.exists() && propFile.canRead()) {
+        def props = new Properties()
+        props.load(new FileInputStream(propFile))
+        if (props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
+                props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD') &&
+                props.containsKey("APPID")) {
+            android.signingConfigs.release.storeFile = file('../' + props['STORE_FILE'])
+            android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
+            android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
+            android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
+            ext.appid = props['APPID']
+        } else {
+            println 'secure.properties are found but some entries are missed!'
+            android.buildTypes.release.signingConfig = null
+        }
+    } else {
+        println 'signing.properties are not found!'
+        android.buildTypes.release.signingConfig = null
     }
 }
 
@@ -44,4 +91,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     implementation project(':wx')
+    implementation project(':channel_push')
 }

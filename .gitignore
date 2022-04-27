@@ -89,3 +89,6 @@ lint/tmp/
 node_modules
 package-lock.json
 package.json
+
+/jks
+secure.properties

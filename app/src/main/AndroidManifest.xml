@@ -16,6 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!--Vivo Push开放平台中应用的appid 和api key-->
+        <meta-data
+            android:name="com.vivo.push.api_key"
+            android:value="120858fa3b3d9a3b32bc3eda71ec95b5"/>
+        <meta-data
+            android:name="com.vivo.push.app_id"
+            android:value="105556665"/>
     </application>
 
 </manifest>
