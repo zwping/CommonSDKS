@@ -2,5 +2,4 @@ rootProject.name = "commonsdks"
 include ':app'
 include ':wx'
 include ':qq'
-include ':all'
 include ':channel_push'
