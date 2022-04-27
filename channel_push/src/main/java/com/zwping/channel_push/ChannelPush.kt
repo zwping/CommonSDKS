@@ -32,6 +32,7 @@ object ChannelPush {
             RomUtils.isXiaomi() -> MIReceiver.register(ctx, miId, miKey)
             RomUtils.isOppo() -> Oppo.register(ctx, oppoKey, oppoSecret)
             RomUtils.isVivo() -> VivoReceiver.register(ctx)
+            else -> logd("非${Channel.values().map { it.name }}渠道")
         }
     }
     /*** 反注册推送 ***/

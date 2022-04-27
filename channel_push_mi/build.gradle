@@ -1,0 +1,2 @@
+configurations.maybeCreate('default')
+artifacts.add('default', file('MiPush_SDK_Client_5_0_3-C_3rd.aar'))
