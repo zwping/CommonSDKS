@@ -16,14 +16,13 @@ android {
 
     signingConfigs {
         release {
-            storeFile
-            storePassword
-            keyAlias
-            keyPassword
+            storeFile file(jks_store_path)
+            storePassword jks_store_pwd
+            keyAlias jks_key_alias
+            keyPassword jks_key_pwd
         }
     }
     getSigningProperties()
-    println '包名: ' + appid
 
     defaultConfig {
         applicationId appid!='xxx' ? appid : "com.zwping.commonsdks"
@@ -35,6 +34,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // buildConfigField "String", "WX_ID", '"xxx"'
     }
+    println '包名: ' + defaultConfig.applicationId + '--' + signingConfigs.release
 
     buildTypes {
         debug {
