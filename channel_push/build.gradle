@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 26
-        versionName "0.1.16"
+        versionCode 27
+        versionName "0.1.17"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -55,7 +55,6 @@ dependencies {
 //            'vivo_pushSDK_v3.0.0.4_484.aar',
 //    ])
     api project(':channel_push_xiaomi')
-//    api project(':channel_push_mi')
     api project(':channel_push_oppo')
     api project(':channel_push_vivo')
     api 'com.huawei.hms:push:5.3.0.304'

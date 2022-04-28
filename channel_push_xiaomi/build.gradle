@@ -33,7 +33,5 @@ android {
 }
 
 dependencies {
-    api fileTree(dir: 'libs', includes: [
-            'MiPush_SDK_Client_5_0_3-C.jar',
-    ])
+    api fileTree(dir: 'libs', includes: ['MiPush_SDK_Client_5_0_3-C.jar',])
 }

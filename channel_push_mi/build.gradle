@@ -1,6 +1,0 @@
-plugins {
-    id 'com.github.dcendents.android-maven'
-}
-group = 'com.zwping'
-configurations.maybeCreate('default')
-artifacts.add('default', file('MiPush_SDK_Client_5_0_3-C_3rd.aar'))
