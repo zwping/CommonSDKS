@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 24
-        versionName "0.1.14"
+        versionCode 25
+        versionName "0.1.15"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -54,7 +54,7 @@ dependencies {
 //            'oppo-push-3.0.0.aar',
 //            'vivo_pushSDK_v3.0.0.4_484.aar',
 //    ])
-    compileOnly files('libs/MiPush_SDK_Client_5_0_3-C_3rd.aar')
+    api project(':channel_push_xiaomi')
 //    api project(':channel_push_mi')
     api project(':channel_push_oppo')
     api project(':channel_push_vivo')
