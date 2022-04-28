@@ -92,4 +92,6 @@ dependencies {
 
     implementation project(':wx')
     implementation project(':channel_push')
+
+    debugImplementation 'cat.ereza:customactivityoncrash:2.3.0'
 }
