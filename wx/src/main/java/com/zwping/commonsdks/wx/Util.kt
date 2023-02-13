@@ -63,7 +63,7 @@ internal object Util {
         }
     }
 
-    /*** 转换为安全的字符串, 中文占3字节 ***/
+    /*** 转换为安全的字符串, 中文占3字节(个别字符占4字节) ***/
     fun String.safeStr(maxByte: Long) = if (trim().length > maxByte) substring(0, trim().length/3) else this
 
     /*** 高效获取Img ***/

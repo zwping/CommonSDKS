@@ -13,7 +13,7 @@ import com.zwping.channel_push.receiver.VivoReceiver
  */
 object ChannelPush {
 
-    enum class Channel{ Mi, Huawei, Oppo, Vivo }
+    enum class Channel{ Xiaomi, Huawei, Oppo, Vivo }
 
     var logd: (msg: Any?) -> Unit = { }
     var onRegisterCallback: (channel: Channel, regId: String?) -> Unit = { _, _ -> }

@@ -28,25 +28,21 @@ interface IWxHelper {
      */
     fun init(app: Application, wxAppId: String)
 
-    fun login(lis: OnLoginListener, ctx: Context? = null, appId: String? = null)
-    fun pay(lis: OnPayListener, appId: String?, partnerId: String?, prepayId: String?, packageValue: String?,
-            nonceStr: String?, timeStamp: String?, sign: String?, ctx: Context? = null)
+    fun login(lis: OnLoginListener)
+    fun pay(lis: OnPayListener, partnerId: String?, prepayId: String?, packageValue: String?,
+            nonceStr: String?, timeStamp: String?, sign: String?)
 
-    fun shareTxt(scene: WxHelper.WxScene, txt: String, lis: OnShareListener, ctx: Context? = null, appId: String? = null)
     fun shareTxt(scene: WxHelper.WxScene, txt: String, lis: OnShareListener)
-
-    fun shareImg(scene: WxHelper.WxScene, realPath: String?, lis: OnShareListener, ctx: Context? = null, appId: String? = null)
     fun shareImg(scene: WxHelper.WxScene, realPath: String?, lis: OnShareListener)
+
+//    fun shareMini()
 
     /**
      * 第三方app向微信发送数据
      * @param scene         目标场景
      * @param entity        消息体 - 根据微信文档规则自动解析
      * @param lis           回调
-     * @param ctx           <可选>
-     * @param appId         <可选>
      */
-    fun sendReq(scene: WxHelper.WxScene, entity: WxHelper.WxMsgEntity, lis: OnShareListener, ctx: Context? = null, appId: String? = null)
     fun sendReq(scene: WxHelper.WxScene, entity: WxHelper.WxMsgEntity, lis: OnShareListener)
 
     // ============== 工具 =================

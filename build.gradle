@@ -26,6 +26,7 @@ allprojects {
         jcenter() // Warning: this repository is going to shut down soon
         // 配置HMS Core SDK的Maven仓地址。
         maven {url 'https://developer.huawei.com/repo/'}
+        maven { url 'https://jitpack.io' }
     }
 }
 

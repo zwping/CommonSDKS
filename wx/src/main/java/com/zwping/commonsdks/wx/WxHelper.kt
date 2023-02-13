@@ -14,18 +14,29 @@ import com.zwping.commonsdks.wx.wxapi.WXEntryActivity
 import java.lang.ref.WeakReference
 import java.util.*
 import com.zwping.commonsdks.wx.IWxHelper.*
+import com.zwping.commonsdks.wx.Util.app
+import com.zwping.commonsdks.wx.Util.getImg
 import com.zwping.commonsdks.wx.wxapi.WXPayEntryActivity
+import kotlin.random.Random
 
 /**
  * 微信sdk扩展
- *      分享
- *      支付
+ * [WxHelper.init] 初始化wx sdk, 注意隐私协议
+ * [WxHelper.shareMini] 分享小程序
+ * [WxHelper.shareImg]  分享图片
+ * [WxHelper.shareTxt]  分享文本
+ * [WxHelper.login]     微信登录
+ * [WxHelper.pay]       微信支付
  * zwping @ 2021/8/17
  */
 object WxHelper: IWxHelper {
 
     override var api: IWXAPI? = null
 
+    /**
+     * 初始化wx sdk, 注意隐私协议
+     * @param wxAppId BuildConfig.WX_ID | build.gradle->defaultConfig { buildConfigField "String", "WX_ID", '"xxx"' }
+     */
     override fun init(app: Application, wxAppId: String) {
         Util.app = app
         createWxApi(app, wxAppId)
@@ -49,26 +60,25 @@ object WxHelper: IWxHelper {
             Util.toast(ConstRegisterFail, ctx)
     }
 
-    override fun login(lis: OnLoginListener, ctx: Context?, appId: String?) {
-        createWxApi(ctx, appId)
+    override fun login(lis: OnLoginListener) {
         if (api == null) { lis.callback(false, null, -101, ConstArgsErr); return }
         WXEntryActivity.wxLoginLis = WeakReference(lis)
-        val r = api?.sendReq(SendAuth.Req().apply { scope = "snsapi_userinfo" }) == true
-        if (!r) lis.callback(false, null, -100, ConstCodeExtra3)
+        val r = api?.sendReq(SendAuth.Req().apply { scope = "snsapi_userinfo" })
+        if (r != true) lis.callback(false, null, -100, ConstCodeExtra3)
     }
 
     override fun pay(lis: OnPayListener,
-                     appId: String?, partnerId: String?, prepayId: String?, packageValue: String?,
-                     nonceStr: String?, timeStamp: String?, sign: String?, ctx: Context?) {
-        createWxApi(ctx, appId)
+                     partnerId: String?, prepayId: String?, packageValue: String?,
+                     nonceStr: String?, timeStamp: String?, sign: String?) {
+        // createWxApi(ctx, appId)
         if (api == null) { lis.callback(false, null, -100, ConstArgsErr); return }
         WXPayEntryActivity.wxPayListener = WeakReference(lis)
         val r = api?.sendReq(PayReq().also {
-            it.appId = appId; it.partnerId = partnerId; it.prepayId = prepayId
+            it.appId = WxAppId; it.partnerId = partnerId; it.prepayId = prepayId
             it.packageValue = packageValue; it.nonceStr = nonceStr
             it.timeStamp = timeStamp; it.sign = sign
-        }) == true
-        if (!r) lis.callback(false, null, -101, ConstCodeExtra4)
+        })
+        if (r == false) lis.callback(false, null, -101, ConstCodeExtra4)
     }
 
     override fun shareTxt(scene: WxScene, txt: String, lis: OnShareListener, ctx: Context?, appId: String?) {
@@ -96,6 +106,19 @@ object WxHelper: IWxHelper {
         sendReq(scene, entity, lis, ctx, appId)
     }
     override fun shareImg(scene: WxScene, realPath: String?, lis: OnShareListener) { shareImg(scene, realPath, lis, null, null) }
+
+    /**
+     *
+     */
+    fun shareMini(entity: WxMiniEntity, lis: OnShareListener) {
+        val bmp = getImg(entity.imgLocalPath)
+        if (null == bmp) { lis.callback(false, -100, ConstCodeExtra1); return }
+        WXEntryActivity.wxShareLis = WeakReference(lis)
+        val data = compressBmp2ByteArray(bmp, isTransparentImg(entity.imgLocalPath), 128*1024L, false)
+        val r = WxHelper.api?.sendReq(entity.req(data))
+        if (r == false) { lis.callback(false, -100, ConstCodeExtra2) }
+        bmp.recycle()
+    }
 
     override fun sendReq(scene: WxScene, entity: WxMsgEntity, lis: OnShareListener, ctx: Context?, appId: String?) {
         "sendReq $scene $entity $ctx $appId".log()
@@ -199,7 +222,41 @@ object WxHelper: IWxHelper {
                     "extendObj=$extendObj, " +
                     "miniObj=$miniObj)"
         }
+    }
+    class WxMiniEntity {
 
+        var webpageUrl = "https://weixin.com"   // 兼容低版本的网页链接
+        var miniType = 0                        // 正式版:0，测试版:1，体验版:2
+        var miniId: String? = null              // 小程序原始id gh_d43f693ca31f
+        var path: String? = null                //小程序页面路径；对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"
+        var title: String? = null               // 小程序消息title
+        var desc: String? = null                // 小程序消息desc
+        var imgLocalPath: String? = null        // 小程序消息封面图片，小于128k
+
+        constructor()
+        constructor(miniType: Int, miniId: String?, path: String?, title: String?, imgLocalPath: String?) {
+            this.miniType = miniType
+            this.miniId = miniId
+            this.path = path
+            this.title = title
+            this.imgLocalPath = imgLocalPath
+        }
+
+        fun req(thumbData: ByteArray?) = SendMessageToWX.Req().also { req ->
+            req.transaction = "mini${System.currentTimeMillis()}${Random.nextInt(0, 100)}" // 事务id, 与resp呼应使用
+            req.scene = SendMessageToWX.Req.WXSceneSession // 目前只支持会话
+            val miniObj = WXMiniProgramObject().also {
+                it.webpageUrl = webpageUrl
+                it.miniprogramType = miniType
+                it.userName = miniId
+                it.path = path
+            }
+            req.message = WXMediaMessage(miniObj).also {
+                it.title = title
+                it.description = desc
+                it.thumbData = thumbData
+            }
+        }
     }
 
     enum class WxScene(val value: Int) {
@@ -209,23 +266,23 @@ object WxHelper: IWxHelper {
     }
 
     // 公开常量, 可随意替换
-    const val ConstRegisterFail = "应用AppId注册到微信失败"
-    const val ConstWxUnInstall = "未安装微信"
-    const val ConstArgsErr = "args error"
-    const val ConstCodeMsg1 = "分享成功"
-    const val ConstCodeMsg2 = "分享取消"
-    const val ConstCodeMsg3 = "分享被拒绝"
-    const val ConstCodeMsg4 = "分享不支持的错误"
-    const val ConstCodeMsg5 = "分享返回"
-    const val ConstCodeMsg6 = "登录成功"
-    const val ConstCodeMsg7 = "用户拒绝授权"
-    const val ConstCodeMsg8 = "用户取消"
-    const val ConstCodeMsg9 = "登录失败"
-    const val ConstCodeMsg10 = "支付成功"
-    const val ConstCodeMsg11 = "支付错误"
-    const val ConstCodeMsg12 = "支付取消"
-    const val ConstCodeExtra1 = "图片为空"
-    const val ConstCodeExtra2 = "分享数据发送失败"
-    const val ConstCodeExtra3 = "登录数据发送失败"
-    const val ConstCodeExtra4 = "支付数据发送失败"
+    var ConstRegisterFail   = "应用AppId注册到微信失败"
+    var ConstWxUnInstall    = "未安装微信"
+    var ConstArgsErr        = "args error"
+    var ConstCodeMsg1       = "分享成功"
+    var ConstCodeMsg2       = "分享取消"
+    var ConstCodeMsg3       = "分享被拒绝"
+    var ConstCodeMsg4       = "分享不支持的错误"
+    var ConstCodeMsg5       = "分享返回"
+    var ConstCodeMsg6       = "登录成功"
+    var ConstCodeMsg7       = "用户拒绝授权"
+    var ConstCodeMsg8       = "用户取消"
+    var ConstCodeMsg9       = "登录失败"
+    var ConstCodeMsg10      = "支付成功"
+    var ConstCodeMsg11      = "支付错误"
+    var ConstCodeMsg12      = "支付取消"
+    var ConstCodeExtra1     = "图片为空"
+    var ConstCodeExtra2     = "分享数据发送失败"
+    var ConstCodeExtra3     = "登录数据发送失败"
+    var ConstCodeExtra4     = "支付数据发送失败"
 }

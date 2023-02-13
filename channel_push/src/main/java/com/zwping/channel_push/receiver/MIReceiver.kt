@@ -114,7 +114,7 @@ class MIReceiver : PushMessageReceiver() {
         if (message.resultCode.toInt() == ErrorCode.SUCCESS && MiPushClient.COMMAND_REGISTER == command) {
             val mRegId = cmdArg1
             ChannelPush.logd("小米push register suc $mRegId")
-            ChannelPush.onRegisterCallback.invoke(ChannelPush.Channel.Mi, mRegId)
+            ChannelPush.onRegisterCallback.invoke(ChannelPush.Channel.Xiaomi, mRegId)
         }
         /*
         val cmdArg2 = if (arguments != null && arguments.size > 1) arguments[1] else null

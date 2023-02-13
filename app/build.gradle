@@ -93,5 +93,6 @@ dependencies {
     implementation project(':wx')
     implementation project(':channel_push')
 
+    implementation 'com.zwping:alibx:0.8.19'
     debugImplementation 'cat.ereza:customactivityoncrash:2.3.0'
 }
